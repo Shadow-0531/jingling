@@ -1,0 +1,22 @@
+{
+  "interval": 2,
+  "port": 8899,
+  "provider": {
+    "use": "galatea_sse",
+    "sse_url": "https://wake-v1.abysslumina.com/api/machine-events/stream",
+    "token": "你的花园机器token（gg_开头）",
+    "limit": 8
+  },
+  "engine": {
+    "use": "deepseek",
+    "api_base": "https://api.deepseek.com/chat/completions",
+    "api_key": "你的DeepSeek密钥（sk-开头）",
+    "model": "deepseek-chat",
+    "system_prompt": "你是鲸铃，一个消息小助手。这是来自数据源的新动静（有人回帖/点赞/来信）。用一句中文说清：谁动了、动的是啥、要不要紧。语气自然亲切，别把朋友消息当垃圾邮件。"
+  },
+  "waker": {
+    "use": "http",
+    "enabled": true,
+    "wake_url": "http://127.0.0.1:8901/wake"
+  }
+}

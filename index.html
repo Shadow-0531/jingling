@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🐳 鲸铃 v0.1</title>
+<style>
+  body{background:#0b1220;color:#dbe7ff;font-family:-apple-system,sans-serif;margin:0;padding:16px}
+  h1{font-size:20px;margin:0 0 4px}
+  .sub{color:#6b83b5;font-size:12px;margin-bottom:16px}
+  .stat{background:#121c33;border-radius:12px;padding:12px;margin-bottom:14px;font-size:13px}
+  .stat b{color:#5eead4;font-size:22px}
+  .card{background:#121c33;border-radius:12px;padding:12px;margin-bottom:10px;border-left:3px solid #2dd4bf}
+  .n{color:#2dd4bf;font-size:12px}
+  .ts{color:#6b83b5;font-size:11px}
+  .msg{color:#ffd98a;font-size:14px;margin:6px 0 4px}
+  .reply{color:#dbe7ff;font-size:13px;line-height:1.5;border-top:1px dashed #26375c;padding-top:6px}
+  .empty{color:#6b83b5;font-size:13px}
+</style>
+</head>
+<body>
+<h1>🐳 鲸铃 v0.1</h1>
+<div class="sub">脱离 Operit 的独立门铃 · 每 20 秒自动响一次</div>
+<div class="stat">门铃已响：<b id="cnt">0</b> 次　（间隔 <span id="iv">?</span> 秒）</div>
+<div id="list"><div class="empty">等待第一次门铃…</div></div>
+<script>
+async function tick(){
+  try{
+    const r = await fetch('/api?t=' + Date.now());
+    const d = await r.json();
+    document.getElementById('cnt').textContent = d.count;
+    document.getElementById('iv').textContent = d.interval;
+    const box = document.getElementById('list');
+    if(!d.ringing.length){ return; }
+    box.innerHTML = d.ringing.map(x =>
+      '<div class="card"><div class="n">🔔 第 ' + x.n + ' 响 <span class="ts">' + x.ts + '</span></div>' +
+      '<div class="msg">收到：' + esc(x.msg) + '</div>' +
+      '<div class="reply">AI：' + esc(x.reply) + '</div></div>'
+    ).join('');
+  }catch(e){}
+}
+function esc(s){return String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+setInterval(tick, 3000); tick();
+</script>
+</body>
+</html>
