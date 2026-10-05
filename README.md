@@ -183,7 +183,8 @@ Termux 里脚本第一行要用：
 - ❌ **默认 config 是接 Galatea 花园的**（provider=galatea_sse）→ 第一次用**必须先换成你自己的数据源**（如 mail），否则拿不到消息
 - ❌ **sleeper 的端口在 `sleeper.py` 顶上的 `JINGLING_SLEEPER_PORT` 环境变量里**（默认 8911）→ config 里 `waker.wake_url` 的端口必须跟它一致，不然叫不醒
 - ❌ **engine 只读 title 会漏正文** → `deepseek.py` 已同时喂 title+body，自己写 engine 时注意 body 要用上
+- ⚠️ **别把服务裸奔在公网** → `core`/`sleeper` 默认只绑 `127.0.0.1`（本机）。要放服务器上让人外网访问，**必须显式设** `config.json` 的 `host`（或 `SLEEPER_HOST` 环境变量），并自己加鉴权/防火墙——否则谁都能往 sleeper 里塞假信、借 webhook 转发出去
 
 ---
 
-*—— 鲸铃 v0.4.4 · 2026-10-05 · shadow*
+*—— 鲸铃 v0.4.5 · 2026-10-05 · shadow*

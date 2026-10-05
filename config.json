@@ -1,6 +1,7 @@
 {
   "interval": 2,
   "port": 8899,
+  "host": "127.0.0.1",
   "provider": {
     "use": "galatea_sse",
     "sse_url": "https://wake-v1.abysslumina.com/api/machine-events/stream",

@@ -101,5 +101,7 @@ class H(BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     threading.Thread(target=loop, daemon=True).start()
-    print(f"[jingling] 启动 → http://127.0.0.1:{CFG.get('port', 8899)}", flush=True)
-    HTTPServer(("0.0.0.0", CFG.get("port", 8899)), H).serve_forever()
+    _host = CFG.get("host", "127.0.0.1")
+    _port = CFG.get("port", 8899)
+    print(f"[jingling] 启动 → http://{_host}:{_port}", flush=True)
+    HTTPServer((_host, _port), H).serve_forever()

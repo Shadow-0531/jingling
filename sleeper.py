@@ -82,5 +82,7 @@ class H(BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    print("sleeper (universal exit) start -> http://127.0.0.1:%d" % PORT, flush=True)
-    HTTPServer(("0.0.0.0", PORT), H).serve_forever()
+    import os as _os
+    _host = _os.environ.get("SLEEPER_HOST", "127.0.0.1")
+    print("sleeper (universal exit) start -> http://%s:%d" % (_host, PORT), flush=True)
+    HTTPServer((_host, PORT), H).serve_forever()
