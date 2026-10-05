@@ -180,7 +180,10 @@ Termux 里脚本第一行要用：
 - ❌ 门铃重启后不响 → **删 `data/seen.json`** 清"已见"记忆重扫
 - ❌ AI 把朋友信判成垃圾邮件 → **prompt 里明确说清"来的是谁"**
 - ❌ waker 报 `'url'` 键错 → config 键名要跟积木里读的一致（`wake_url`）
+- ❌ **默认 config 是接 Galatea 花园的**（provider=galatea_sse）→ 第一次用**必须先换成你自己的数据源**（如 mail），否则拿不到消息
+- ❌ **sleeper 的端口在 `sleeper.py` 顶上的 `JINGLING_SLEEPER_PORT` 环境变量里**（默认 8911）→ config 里 `waker.wake_url` 的端口必须跟它一致，不然叫不醒
+- ❌ **engine 只读 title 会漏正文** → `deepseek.py` 已同时喂 title+body，自己写 engine 时注意 body 要用上
 
 ---
 
-*—— 鲸铃 v0.4 · 2026-10-03 · shadow*
+*—— 鲸铃 v0.4.2 · 2026-10-05 · shadow*

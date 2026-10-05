@@ -34,15 +34,6 @@ else
 fi
 echo "[2/5] Python 就绪：$($PY --version 2>&1)"
 
-# ---------- 2. 检查 requests ----------
-$PY -c "import requests" >/dev/null 2>&1
-if [ $? -ne 0 ]; then
-    echo "      补装 requests……"
-    $PY -m pip install -q requests >/dev/null 2>&1
-    $PY -c "import requests" >/dev/null 2>&1 || echo "      ⚠️ requests 没装上，跑起来若报错再手动：pip install requests"
-fi
-echo "[3/5] 依赖检查完毕"
-
 # ---------- 3. 拷贝代码到 ~/jingling ----------
 mkdir -p "$HOME_DIR"
 cp -rf "$SRC_DIR"/* "$HOME_DIR"/ 2>/dev/null

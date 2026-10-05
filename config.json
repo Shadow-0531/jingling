@@ -17,6 +17,6 @@
   "waker": {
     "use": "http",
     "enabled": true,
-    "wake_url": "http://127.0.0.1:8901/wake"
+    "wake_url": "http://127.0.0.1:8911/wake"
   }
 }
