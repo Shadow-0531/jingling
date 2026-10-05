@@ -65,6 +65,8 @@ def get_body(msg, limit=1500):
     if "<" in text and ">" in text:
         text = re.sub(r"<[^>]+>", " ", text)
     text = re.sub(r"\s+", " ", text).strip()
+    if len(text) < 30:
+        return "（这封信没有可读正文，可能只有样式/图片）"
     return text[:limit]
 
 def poll(cfg, seen):
