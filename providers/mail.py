@@ -33,42 +33,60 @@ def mark_seen(seen, mid):
     except AttributeError:
         seen[mid] = 1      # core.py 实际传的是 dict
 
-def get_body(msg, limit=1500):
-    """取正文：优先 text/plain，退一步把 text/html 去标签，最后截断。"""
-    text = ""
+def _decode_part(part):
+    """取一个 part 的可读文本，自动处理 base64 / quoted-printable / charset。"""
     try:
-        if msg.is_multipart():
-            for part in msg.walk():
-                ctype = part.get_content_type()
-                disp = str(part.get("Content-Disposition") or "")
-                if "attachment" in disp:
-                    continue
-                if ctype == "text/plain":
-                    payload = part.get_payload(decode=True)
-                    if payload:
-                        text = payload.decode(part.get_content_charset() or "utf-8", errors="replace")
-                        break
-            if not text:
-                for part in msg.walk():
-                    if part.get_content_type() == "text/html":
-                        payload = part.get_payload(decode=True)
-                        if payload:
-                            text = payload.decode(part.get_content_charset() or "utf-8", errors="replace")
-                            break
-        else:
-            payload = msg.get_payload(decode=True)
-            if payload:
-                text = payload.decode(msg.get_content_charset() or "utf-8", errors="replace")
+        payload = part.get_payload(decode=True)
+        if payload is None:
+            return ""
+        charset = part.get_content_charset() or "utf-8"
+        return payload.decode(charset, errors="replace")
+    except Exception as e:
+        print(f"[mail] 解码 part 失败: {e}", flush=True)
+        return ""
+
+def _strip_html(t):
+    t = re.sub(r"(?is)<(script|style)[^>]*>.*?</\1>", " ", t)
+    t = re.sub(r"<[^>]+", " ", t)
+    import html as _html
+    t = _html.unescape(t)
+    return re.sub(r"\s+", " ", t).strip()
+
+def get_body(msg, limit=1500):
+    """取正文：优先 text/plain -> text/html（去标签）-> 其他可读部分。
+    取不到可读内容时，明确返回一句提示，而非空串。"""
+    text = ""
+    html_text = ""
+    try:
+        parts = list(msg.walk()) if msg.is_multipart() else [msg]
+        for part in parts:
+            ctype = part.get_content_type()
+            disp = str(part.get("Content-Disposition") or "")
+            if "attachment" in disp:
+                continue
+            if ctype == "text/plain":
+                t = _decode_part(part)
+                # 去除引用符号(>)和空白后，如果几乎没内容，视为无效（有些邮件 text/plain 只有空引用）
+                if len(re.sub(r"[>\s]+", "", t)) >= 2:
+                    text = t
+                    break
+            elif ctype == "text/html":
+                t = _decode_part(part)
+                if t.strip() and not html_text:
+                    html_text = t
+        if not text.strip():
+            text = _strip_html(html_text) if html_text else ""
     except Exception as e:
         print(f"[mail] 取正文失败: {e}", flush=True)
         return ""
-    if "<" in text and ">" in text:
-        text = re.sub(r"<[^>]+>", " ", text)
+    # 清理：有些 HTML 去标签后会剩一堆引用/表格符号(>)与孤立符号，全清掉
+    text = re.sub(r"[>　]+", " ", text)
     text = re.sub(r"\s+", " ", text).strip()
-    if len(text) < 30:
+    # 清理后如果只剩符号/空白（可读字符太少），判为无正文
+    readable = re.sub(r"[\W_]+", "", text, flags=re.UNICODE)
+    if len(readable) < 15:
         return "（这封信没有可读正文，可能只有样式/图片）"
     return text[:limit]
-
 def poll(cfg, seen):
     """cfg: pop_host/pop_port/user/pass/scan_last；seen: set 或 dict（已见id）"""
     P = poplib.POP3_SSL(cfg["pop_host"], cfg["pop_port"], timeout=40)
